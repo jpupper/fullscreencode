@@ -3,11 +3,13 @@
 // ===================================
 
 let gridPoints = [];
+let stars = [];
 let cols, rows;
 let spacing = 50;
 let mouseAttractRadius = 180;
 let returnSpeed = 0.09;
 let attractSpeed = 0.05;
+let numStars = 150;
 
 function setup() {
     let canvas = createCanvas(windowWidth, windowHeight);
@@ -38,10 +40,51 @@ function setup() {
             });
         }
     }
+    
+    // Create stars
+    for (let i = 0; i < numStars; i++) {
+        stars.push({
+            x: random(width),
+            y: random(height),
+            size: random(1, 3),
+            speed: random(0.1, 0.5),
+            opacity: random(100, 200),
+            twinkleSpeed: random(0.01, 0.03),
+            twinklePhase: random(TWO_PI)
+        });
+    }
 }
 
 function draw() {
     background(0);
+    
+    // Draw and update stars (behind grid)
+    for (let star of stars) {
+        // Slow drift movement
+        star.x += star.speed;
+        if (star.x > width) star.x = 0;
+        
+        // Mouse interaction - subtle repulsion
+        let dx = mouseX - star.x;
+        let dy = mouseY - star.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < 150) {
+            let force = map(dist, 0, 150, 0.5, 0);
+            star.x -= (dx / dist) * force;
+            star.y -= (dy / dist) * force;
+        }
+        
+        // Twinkle effect
+        star.twinklePhase += star.twinkleSpeed;
+        let twinkle = sin(star.twinklePhase) * 0.5 + 0.5;
+        let currentOpacity = star.opacity * twinkle;
+        
+        // Draw star
+        noStroke();
+        fill(0, 217, 255, currentOpacity * 0.4); // Cyan with low opacity
+        circle(star.x, star.y, star.size);
+    }
     
     // Update and draw grid points
     for (let point of gridPoints) {
@@ -125,5 +168,19 @@ function windowResized() {
                 vy: 0
             });
         }
+    }
+    
+    // Reset stars
+    stars = [];
+    for (let i = 0; i < numStars; i++) {
+        stars.push({
+            x: random(width),
+            y: random(height),
+            size: random(1, 3),
+            speed: random(0.1, 0.5),
+            opacity: random(100, 200),
+            twinkleSpeed: random(0.01, 0.03),
+            twinklePhase: random(TWO_PI)
+        });
     }
 }

@@ -452,7 +452,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 displayProject(index);
                 updateProjectCounter();
                 
-                // Scroll to selected project
+                // Scroll carousel to show selected card
+                const grid = document.getElementById('projectsGrid');
+                const cardWidth = card.offsetWidth;
+                const scrollPosition = index * (cardWidth + 24); // 24 = gap
+                grid.scrollTo({ left: scrollPosition - (grid.offsetWidth / 2) + (cardWidth / 2), behavior: 'smooth' });
+                
+                // Scroll to selected project display
                 document.getElementById('selectedProject').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             });
             

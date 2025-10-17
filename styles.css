@@ -589,12 +589,34 @@ section {
     box-shadow: var(--shadow-glow);
 }
 
-/* Projects Grid */
+/* Projects Grid - Horizontal Carousel */
 .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    display: flex;
     gap: 1.5rem;
     margin-top: 2rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.projects-grid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.projects-grid::-webkit-scrollbar-track {
+    background: var(--medium-gray);
+    border-radius: 10px;
+}
+
+.projects-grid::-webkit-scrollbar-thumb {
+    background: var(--primary-cyan);
+    border-radius: 10px;
+}
+
+.projects-grid::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-cyan);
 }
 
 .project-card {
@@ -602,6 +624,8 @@ section {
     border-radius: 10px;
     overflow: hidden;
     height: 280px;
+    min-width: 250px;
+    flex-shrink: 0;
     cursor: pointer;
     border: 2px solid transparent;
     transition: var(--transition);
@@ -639,8 +663,7 @@ section {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, var(--primary-cyan), var(--dark-cyan));
-    opacity: 0.1;
+    background: linear-gradient(180deg, rgba(0, 217, 255, 0.15) 0%, rgba(0, 168, 204, 0.05) 100%);
     transition: var(--transition);
     z-index: 1;
 }
