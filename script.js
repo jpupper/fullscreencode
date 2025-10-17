@@ -687,6 +687,69 @@ document.addEventListener('DOMContentLoaded', function() {
     loadProjects();
     
     // ===================================
+    // TEAM MEMBER SELECTION
+    // ===================================
+    
+    const teamMembers = [
+        {
+            name: 'Julian Puppo',
+            role: 'Director/Programador Gráfico',
+            image: 'img/profile/julian.jpg',
+            bio: 'Julian Puppo, es artista multimedial, programador gráfico y director de Jeyder Multimedia. Programa en multiples plataformas y lenguajes : Unity,Unreal Engine,OpenFrameworks ,Touchdesigner,C++,Python,Javascript,Processing ,P5js. Su visión es las integración de todas las cosas, todas las herramientas son una herramienta para realizar el producto perfecto que salvara la humanidad. Impulsor de la generación de la comunidad de Arte Digital Argentino, creador de colaboraciones y no de competencias.'
+        },
+        {
+            name: 'Tolch',
+            role: 'Diseñador Interactivo',
+            image: 'img/profile/tolch.jpg',
+            bio: 'Tolch es diseñador y artista visual, enfocado en experiencias digitales y arte interactivo. Siempre sabe la ultima tecnologia del mercado, tiene una ambición de conocimiento y descubrir propia de un Leonardo Davinci moderno. Experto realizador de visuales en vivo, donde trabajo para grandes artistas internacionales como Miss Monique y Ritchie Hawking, Ademas de ser una persona tranquila como un monje siempre mas que dispuesta a ayudar en la comunidad. Referente universal de Touch Designer'
+        },
+        {
+            name: 'Seb Zav',
+            role: 'Experto Programador Backend',
+            image: 'img/profile/seb.jpg',
+            bio: 'Seb Zav es desarrollador backend senior, sabe una banda sobre VPS, sockets, bases de datos y mucho, mucho PHP con node.js. Es capaz de sacar andando desarrollos de back end extremadamente complejos en el lapso de muy poco tiempo, utilizando su maximo KI, pero para eso hay que tener un buen proyecto que garpe bien.'
+        },
+        {
+            name: 'Erebus Angelo',
+            role: 'Code Experience Designer',
+            image: 'img/profile/erebus.jpg',
+            bio: 'Erebus es desarrollador , capaz de solucionar cualquier cosa, el fiel reflejo de la filosofia de exito de Jeyder Multimedia, Erebus encarna la fe la capacidad de aprender a resolverlo todo. Erebus ha hecho significantes desarrollos web e instalaciones con Inteligencia Artificial. Aparte de que es una persona siempre dispuesta con una sonrisa a solucionarlo todo.'
+        },
+        {
+            name: 'Nahuel Garcia',
+            role: 'Generalista 3D y Experto AV',
+            image: 'img/profile/nahuel.jpg',
+            bio: 'Nahuel tiene una experiencia desbordante en Edición y creación de video y 3D con Premiere,After Effects,Cinema4D , blender. También una sana obesión por el orden de los cables, lo que permite que los montajes salgan impecables.'
+        }
+    ];
+    
+    const teamCards = document.querySelectorAll('.team-member-card');
+    
+    teamCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const memberIndex = parseInt(this.dataset.member);
+            const member = teamMembers[memberIndex];
+            
+            // Remove active class from all cards
+            teamCards.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked card
+            this.classList.add('active');
+            
+            // Update display
+            document.getElementById('teamMemberImage').src = member.image;
+            document.getElementById('teamMemberName').textContent = member.name;
+            document.getElementById('teamMemberRole').textContent = member.role;
+            document.getElementById('teamMemberBio').textContent = member.bio;
+        });
+    });
+    
+    // Set first member as active by default
+    if (teamCards.length > 0) {
+        teamCards[0].classList.add('active');
+    }
+    
+    // ===================================
     // CONSOLE MESSAGE
     // ===================================
     

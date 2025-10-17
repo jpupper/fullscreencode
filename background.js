@@ -9,7 +9,7 @@ let spacing = 50;
 let mouseAttractRadius = 180;
 let returnSpeed = 0.09;
 let attractSpeed = 0.05;
-let numStars = 150;
+let numStars = 200;
 
 function setup() {
     let canvas = createCanvas(windowWidth, windowHeight);
@@ -46,9 +46,9 @@ function setup() {
         stars.push({
             x: random(width),
             y: random(height),
-            size: random(1, 3),
+            size: random(2, 5),
             speed: random(0.1, 0.5),
-            opacity: random(100, 200),
+            opacity: random(150, 255),
             twinkleSpeed: random(0.01, 0.03),
             twinklePhase: random(TWO_PI)
         });
@@ -82,7 +82,7 @@ function draw() {
         
         // Draw star
         noStroke();
-        fill(0, 217, 255, currentOpacity * 0.4); // Cyan with low opacity
+        fill(0, 217, 255, currentOpacity * 0.6); // Cyan with better visibility
         circle(star.x, star.y, star.size);
     }
     
@@ -176,9 +176,9 @@ function windowResized() {
         stars.push({
             x: random(width),
             y: random(height),
-            size: random(1, 3),
+            size: random(2, 5),
             speed: random(0.1, 0.5),
-            opacity: random(100, 200),
+            opacity: random(150, 255),
             twinkleSpeed: random(0.01, 0.03),
             twinklePhase: random(TWO_PI)
         });
