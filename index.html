@@ -6,6 +6,7 @@
     <meta name="description" content="FullScreen Code Solutions - Productora especializada en desarrollo de software para instalaciones interactivas y multimediales, páginas web y más.">
     <title>FullScreen Code Solutions | Desarrollo de Software Interactivo</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -120,48 +121,79 @@
     <section id="proyectos" class="projects">
         <div class="container">
             <h2 class="section-title">Proyectos Destacados</h2>
-            <p class="section-subtitle">Algunos de nuestros trabajos más recientes</p>
+            <p class="section-subtitle">Explora nuestro portfolio de trabajos</p>
             
-            <div class="projects-grid">
-                <div class="project-card" data-aos="zoom-in">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <h3>Instalación Interactiva Museo</h3>
-                            <p>Sistema de interacción gestual para exhibición permanente</p>
-                            <a href="#" class="project-link">Ver más</a>
-                        </div>
-                    </div>
-                </div>
+            <!-- Filter Buttons -->
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="mobile">Mobile</button>
+                <button class="filter-btn" data-filter="nft">NFT</button>
+                <button class="filter-btn" data-filter="interactive">Interactive</button>
+                <button class="filter-btn" data-filter="3d">3D</button>
+                <button class="filter-btn" data-filter="2d">2D</button>
+                <button class="filter-btn" data-filter="static">Static</button>
+                <button class="filter-btn" data-filter="unreal">Unreal</button>
+                <button class="filter-btn" data-filter="opensource">Open Source</button>
+                <button class="filter-btn" data-filter="learning">Learning</button>
+                <button class="filter-btn" data-filter="unity">Unity</button>
+                <button class="filter-btn" data-filter="touchdesigner">TouchDesigner</button>
+                <button class="filter-btn" data-filter="python">Python</button>
+                <button class="filter-btn" data-filter="c++">C++</button>
+                <button class="filter-btn" data-filter="openframeworks">OpenFrameworks</button>
+                <button class="filter-btn" data-filter="processing">Processing</button>
+                <button class="filter-btn" data-filter="videogame">Video Game</button>
+                <button class="filter-btn" data-filter="multiplayer">Multiplayer</button>
+                <button class="filter-btn" data-filter="donemobile">Hecho en Mobile</button>
+                <button class="filter-btn" data-filter="vr">VR</button>
+                <button class="filter-btn" data-filter="ar">AR</button>
+                <button class="filter-btn" data-filter="kinect">Kinect</button>
+                <button class="filter-btn" data-filter="lidar">LIDAR</button>
+                
+				<button class="filter-btn" data-filter="web">Web</button>
+            </div>
 
-                <div class="project-card" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <h3>Mapping Arquitectónico</h3>
-                            <p>Proyección multimedia para evento corporativo</p>
-                            <a href="#" class="project-link">Ver más</a>
-                        </div>
-                    </div>
+            <!-- Gallery Controls -->
+            <div class="gallery-controls">
+                <button id="prevProject" class="gallery-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div class="gallery-info">
+                    <span id="currentProjectIndex">1</span> / <span id="totalProjects">0</span>
                 </div>
+                <button id="nextProject" class="gallery-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+                <button id="toggleAutoplay" class="gallery-btn autoplay-btn">
+                    <svg id="playIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <svg id="pauseIcon" style="display: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="6" y="4" width="4" height="16"></rect>
+                        <rect x="14" y="4" width="4" height="16"></rect>
+                    </svg>
+                </button>
+            </div>
 
-                <div class="project-card" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <h3>Plataforma Web E-commerce</h3>
-                            <p>Tienda online con experiencia de usuario optimizada</p>
-                            <a href="#" class="project-link">Ver más</a>
-                        </div>
-                    </div>
+            <!-- Selected Project Display -->
+            <div class="selected-project" id="selectedProject">
+                <div class="project-media" id="projectMedia">
+                    <!-- Project content will be loaded here -->
                 </div>
-
-                <div class="project-card" data-aos="zoom-in" data-aos-delay="300">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <h3>App de Realidad Aumentada</h3>
-                            <p>Aplicación móvil con experiencias AR inmersivas</p>
-                            <a href="#" class="project-link">Ver más</a>
-                        </div>
-                    </div>
+                <div class="project-details" id="projectDetails">
+                    <h3 id="projectTitle">Cargando proyectos...</h3>
+                    <div class="project-tags" id="projectTags"></div>
+                    <p id="projectDescription">Por favor espera mientras cargamos los proyectos.</p>
+                    <div class="project-links" id="projectLinks"></div>
                 </div>
+            </div>
+            
+            <!-- Projects Grid -->
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Projects will be loaded dynamically from API -->
             </div>
         </div>
     </section>
@@ -319,6 +351,7 @@
         </div>
     </footer>
 
+    <script src="background.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

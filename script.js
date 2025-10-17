@@ -2,6 +2,17 @@
 // FULLSCREEN CODE SOLUTIONS - JAVASCRIPT
 // ===================================
 
+// ===================================
+// GLOBAL VARIABLES FOR PROJECTS
+// ===================================
+
+let allProjects = [];
+let filteredProjects = [];
+let currentProjectIndex = 0;
+let autoplayInterval = null;
+let isAutoplayActive = false;
+let selectedFilters = []; // Array to store multiple selected filters
+
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     
@@ -386,6 +397,288 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 10);
     
     window.addEventListener('scroll', debouncedScroll);
+    
+    // ===================================
+    // PROJECTS API INTEGRATION
+    // ===================================
+    
+    async function loadProjects() {
+        try {
+            const response = await fetch('https://vps-4455523-x.dattaweb.com/jpupper/api/projects');
+            allProjects = await response.json();
+            filteredProjects = [...allProjects];
+            
+            renderProjectsGrid();
+            if (filteredProjects.length > 0) {
+                displayProject(0);
+            }
+            updateProjectCounter();
+        } catch (error) {
+            console.error('Error loading projects:', error);
+            document.getElementById('projectTitle').textContent = 'Error al cargar proyectos';
+            document.getElementById('projectDescription').textContent = 'No se pudieron cargar los proyectos. Por favor intenta más tarde.';
+        }
+    }
+    
+    function renderProjectsGrid() {
+        const grid = document.getElementById('projectsGrid');
+        grid.innerHTML = '';
+        
+        filteredProjects.forEach((project, index) => {
+            const card = document.createElement('div');
+            card.className = 'project-card';
+            card.dataset.index = index;
+            
+            // Add tags as data attributes for filtering
+            if (project.tags && Array.isArray(project.tags)) {
+                card.dataset.tags = project.tags.join(',').toLowerCase();
+            }
+            
+            const thumbnail = project.thumbnail || 'img/projects/default.png';
+            const description = stripHtml(project.description).substring(0, 100) + '...';
+            
+            card.innerHTML = `
+                <div class="project-image" style="background-image: url('https://vps-4455523-x.dattaweb.com/jpupper/${thumbnail}')">
+                    <img src="https://vps-4455523-x.dattaweb.com/jpupper/${thumbnail}" alt="${project.title}" onerror="this.src='img/projects/default.png'">
+                </div>
+                <div class="project-overlay">
+                    <h3>${project.title}</h3>
+                    <p>${description}</p>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                currentProjectIndex = index;
+                displayProject(index);
+                updateProjectCounter();
+                
+                // Scroll to selected project
+                document.getElementById('selectedProject').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+            
+            grid.appendChild(card);
+        });
+    }
+    
+    function displayProject(index) {
+        if (index < 0 || index >= filteredProjects.length) return;
+        
+        const project = filteredProjects[index];
+        currentProjectIndex = index;
+        
+        // Update selected card highlight
+        document.querySelectorAll('.project-card').forEach((card, i) => {
+            card.classList.toggle('selected', i === index);
+        });
+        
+        // Update title
+        document.getElementById('projectTitle').textContent = project.title;
+        
+        // Update tags
+        const tagsContainer = document.getElementById('projectTags');
+        tagsContainer.innerHTML = '';
+        if (project.tags && Array.isArray(project.tags)) {
+            project.tags.forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'project-tag';
+                tagEl.textContent = tag;
+                tagsContainer.appendChild(tagEl);
+            });
+        }
+        
+        // Update description
+        document.getElementById('projectDescription').innerHTML = project.description || 'Sin descripción disponible.';
+        
+        // Update media (YouTube iframe or image)
+        const mediaContainer = document.getElementById('projectMedia');
+        mediaContainer.innerHTML = '';
+        
+        if (project.videolink && isYouTubeUrl(project.videolink)) {
+            const iframe = document.createElement('iframe');
+            const videoId = extractYouTubeId(project.videolink);
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=${isAutoplayActive ? 1 : 0}&mute=1`;
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+            iframe.allowFullscreen = true;
+            mediaContainer.appendChild(iframe);
+        } else if (project.thumbnail) {
+            const img = document.createElement('img');
+            img.src = `https://vps-4455523-x.dattaweb.com/jpupper/${project.thumbnail}`;
+            img.alt = project.title;
+            img.onerror = function() { this.src = 'img/projects/default.png'; };
+            mediaContainer.appendChild(img);
+        }
+        
+        // Update links
+        const linksContainer = document.getElementById('projectLinks');
+        linksContainer.innerHTML = '';
+        if (project.url) {
+            const link = document.createElement('a');
+            link.href = project.url;
+            link.target = '_blank';
+            link.textContent = 'Ver Proyecto';
+            linksContainer.appendChild(link);
+        }
+        if (project.videolink && project.videolink !== project.url) {
+            const link = document.createElement('a');
+            link.href = project.videolink;
+            link.target = '_blank';
+            link.textContent = 'Ver Video';
+            linksContainer.appendChild(link);
+        }
+    }
+    
+    function isYouTubeUrl(url) {
+        return url && (url.includes('youtube.com') || url.includes('youtu.be'));
+    }
+    
+    function extractYouTubeId(url) {
+        const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?)|(shorts\/))(\??v?=?([^#&?]*)).*/;
+        const match = url.match(regExp);
+        return (match && match[9].length === 11) ? match[9] : null;
+    }
+    
+    function stripHtml(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+    }
+    
+    function updateProjectCounter() {
+        document.getElementById('currentProjectIndex').textContent = currentProjectIndex + 1;
+        document.getElementById('totalProjects').textContent = filteredProjects.length;
+    }
+    
+    // ===================================
+    // FILTER FUNCTIONALITY (MULTI-SELECT WITH AND LOGIC)
+    // ===================================
+    
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.dataset.filter.toLowerCase();
+            
+            // Handle "all" button - clear all filters
+            if (filter === 'all') {
+                selectedFilters = [];
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+            } else {
+                // Remove "all" button active state
+                filterButtons.forEach(btn => {
+                    if (btn.dataset.filter === 'all') {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                // Toggle filter selection
+                const filterIndex = selectedFilters.indexOf(filter);
+                if (filterIndex > -1) {
+                    // Remove filter if already selected
+                    selectedFilters.splice(filterIndex, 1);
+                    this.classList.remove('active');
+                } else {
+                    // Add filter to selection
+                    selectedFilters.push(filter);
+                    this.classList.add('active');
+                }
+                
+                // If no filters selected, activate "all"
+                if (selectedFilters.length === 0) {
+                    filterButtons.forEach(btn => {
+                        if (btn.dataset.filter === 'all') {
+                            btn.classList.add('active');
+                        }
+                    });
+                }
+            }
+            
+            // Apply filters
+            applyFilters();
+        });
+    });
+    
+    function applyFilters() {
+        // If no filters selected, show all projects
+        if (selectedFilters.length === 0) {
+            filteredProjects = [...allProjects];
+        } else {
+            // Filter projects that have ALL selected tags (AND logic)
+            filteredProjects = allProjects.filter(project => {
+                if (!project.tags || !Array.isArray(project.tags)) return false;
+                
+                // Check if project has ALL selected filters
+                return selectedFilters.every(filter => {
+                    return project.tags.some(tag => tag.toLowerCase().includes(filter));
+                });
+            });
+        }
+        
+        // Reset to first project
+        currentProjectIndex = 0;
+        renderProjectsGrid();
+        if (filteredProjects.length > 0) {
+            displayProject(0);
+        } else {
+            document.getElementById('projectTitle').textContent = 'No hay proyectos';
+            document.getElementById('projectDescription').textContent = 'No se encontraron proyectos con estos filtros.';
+            document.getElementById('projectMedia').innerHTML = '';
+            document.getElementById('projectTags').innerHTML = '';
+            document.getElementById('projectLinks').innerHTML = '';
+        }
+        updateProjectCounter();
+    }
+    
+    // ===================================
+    // GALLERY CONTROLS
+    // ===================================
+    
+    document.getElementById('prevProject').addEventListener('click', function() {
+        if (filteredProjects.length === 0) return;
+        currentProjectIndex = (currentProjectIndex - 1 + filteredProjects.length) % filteredProjects.length;
+        displayProject(currentProjectIndex);
+        updateProjectCounter();
+    });
+    
+    document.getElementById('nextProject').addEventListener('click', function() {
+        if (filteredProjects.length === 0) return;
+        currentProjectIndex = (currentProjectIndex + 1) % filteredProjects.length;
+        displayProject(currentProjectIndex);
+        updateProjectCounter();
+    });
+    
+    // Autoplay functionality
+    document.getElementById('toggleAutoplay').addEventListener('click', function() {
+        isAutoplayActive = !isAutoplayActive;
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        
+        if (isAutoplayActive) {
+            this.classList.add('active');
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+            
+            // Start autoplay - change project every 8 seconds
+            autoplayInterval = setInterval(() => {
+                currentProjectIndex = (currentProjectIndex + 1) % filteredProjects.length;
+                displayProject(currentProjectIndex);
+                updateProjectCounter();
+            }, 8000);
+        } else {
+            this.classList.remove('active');
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            
+            // Stop autoplay
+            if (autoplayInterval) {
+                clearInterval(autoplayInterval);
+                autoplayInterval = null;
+            }
+        }
+    });
+    
+    // Load projects on page load
+    loadProjects();
     
     // ===================================
     // CONSOLE MESSAGE
